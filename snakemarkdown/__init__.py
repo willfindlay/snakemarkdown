@@ -20,7 +20,7 @@ def is_valid_file(parser, arg):
 def pdf_file(parser, arg):
     return re.sub(r'([^.]*)(\.|\.p|\.pd|\.pdf)?$', r'\1.pdf', arg, count=1)
 
-def main():
+def parse_args(args):
     parser = argparse.ArgumentParser(description=description, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('file', type=lambda arg: is_valid_file(parser, arg),
             metavar='infile.smd',
@@ -44,7 +44,10 @@ def main():
             help='Log debug output to stderr')
 
     # Parse arguments
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+def main():
+    args = parse_args(sys.argv[1:])
 
     if not args.output:
         args.output = re.sub(r'([^.]*)(\..*)?$', r'\1.pdf', args.file, count=1)
