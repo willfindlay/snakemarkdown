@@ -9,7 +9,6 @@ jedi = "*"
 
 [packages]
 pyyaml = "*"
-termcolor = "*"
 pypandoc = "*"
 
 [requires]

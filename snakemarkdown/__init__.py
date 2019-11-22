@@ -36,21 +36,27 @@ def parse_args(args):
 
     # How verbose does the user want the program to be?
     verbosity = parser.add_mutually_exclusive_group()
-    verbosity.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+    verbosity.add_argument('-v', '--verbose', dest='log_level', action='store_const',
+            const=logging.INFO, default=logging.WARNING,
             help='Log extra information to stderr')
-    verbosity.add_argument('-q', '--silent', dest='silent', action='store_true',
+    verbosity.add_argument('-q', '--silent', dest='log_level', action='store_const',
+            const=logging.ERROR,
             help='Silence all stderr output')
-    verbosity.add_argument('--debug', dest='debug', action='store_true',
+    verbosity.add_argument('--debug', dest='log_level', action='store_const',
+            const=logging.DEBUG,
             help='Log debug output to stderr')
 
     # Parse arguments
-    return parser.parse_args(args)
+    args = parser.parse_args(args)
+
+    # Fix output file
+    if not args.output:
+        args.output = re.sub(r'([^.]*)(\..*)?$', r'\1.pdf', args.file, count=1)
+
+    return args
 
 def main():
     args = parse_args(sys.argv[1:])
-
-    if not args.output:
-        args.output = re.sub(r'([^.]*)(\..*)?$', r'\1.pdf', args.file, count=1)
 
     # Setup logger
     log = logging.getLogger()
@@ -60,13 +66,14 @@ def main():
 
     # Set up logging to stderr
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO if args.verbose else
-            logging.ERROR if args.silent else logging.DEBUG if args.debug
-            else logging.WARNING)
+    stream_handler.setLevel(args.log_level)
     formatter = logging.Formatter('%(asctime)s %(levelname)7s: %(message)s')
     formatter.datefmt = '[%H:%M:%S]'
     stream_handler.setFormatter(formatter)
     log.addHandler(stream_handler)
+
+
+    log = logging.getLogger()
 
     log.debug(args.file)
     log.debug(args.output)

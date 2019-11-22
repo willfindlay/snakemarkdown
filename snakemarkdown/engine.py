@@ -1,3 +1,3 @@
 class MarkdownEngine:
-    def __init__(self):
+    def render(self):
         pass
